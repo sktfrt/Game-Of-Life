@@ -1,0 +1,134 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+skinparam ArrowColor DarkBlue
+skinparam ArrowFontSize 12
+skinparam classFontSize 12
+skinparam classFontName "Consolas"
+skinparam rectangle {
+  BackgroundColor<<WorldFactory>> LightBlue
+  BackgroundColor<<Strategy>> LightYellow
+  BackgroundColor<<Cell>> LightGreen
+  BackgroundColor<<Terrain>> LightPink
+}
+
+title Game of Life OOP - UML Диаграмма (Compact)
+
+' Классы клеток
+class Cell <<Cell>> {
+    +int X
+    +int Y
+    +CellType Type
+    +PlanNext(CellContext ctx)
+}
+
+class CellContext {
+    +CellType Self
+    +int WhiteN
+    +int BlackN
+    +int AliveN
+}
+
+enum CellType {
+    Empty
+    White
+    Black
+}
+
+' Интерфейс стратегии
+interface ICellLifeStrategy <<Strategy>> {
+    +CellType GetNext(CellContext ctx)
+}
+
+' Конкретные стратегии Classic
+class ClassicEmptyStrategy <<Strategy>>
+class ClassicWhiteStrategy <<Strategy>>
+
+' Конкретные стратегии Colonies
+class ColonyWhiteStrategy <<Strategy>>
+class ColonyBlackStrategy <<Strategy>>
+
+' Провайдер стратегий
+interface ICellStrategyProvider {
+    +ICellLifeStrategy For(CellType type)
+}
+
+class CellStrategyProvider {
+    -Dictionary<CellType, ICellLifeStrategy> strategies
+    +For(CellType type)
+}
+
+' Фабрика клеток
+interface ICellFactory {
+    +Cell Create(int x, int y, CellType type)
+}
+
+class SimpleCellFactory {
+    -ICellStrategyProvider strategies
+    +Create(int x, int y, CellType type)
+}
+
+' Фабрика мира
+interface IWorldFactory <<WorldFactory>> {
+    +ICellStrategyProvider CreateStrategies()
+    +ICellFactory CreateCellFactory(ICellStrategyProvider strategies)
+}
+
+class ClassicWorldFactory <<WorldFactory>>
+class ColoniesWorldFactory <<WorldFactory>>
+
+' Terrain
+class Terrain <<Terrain>> {
+    -Cell[,] cells
+    +Update()
+    +Reinitialize(ICellFactory factory)
+    +GetCells()
+    -BuildContext(Cell cell)
+    -GetNeighbors(Cell cell)
+}
+
+' MainWindow
+class MainWindow {
+    -Terrain terrain
+    -Timer timer
+    -IWorldFactory currentFactory
+    -ICellFactory cellFactory
+    +MainWindow()
+    +OnModeChanged(string mode)
+    +MainWindow_Paint()
+}
+
+' Связи
+Cell --> ICellStrategyProvider : uses
+Cell --> CellContext : uses
+CellContext --> CellType
+
+ICellLifeStrategy <|.. ClassicEmptyStrategy
+ICellLifeStrategy <|.. ClassicWhiteStrategy
+ICellLifeStrategy <|.. ColonyWhiteStrategy
+ICellLifeStrategy <|.. ColonyBlackStrategy
+
+ICellStrategyProvider <|.. CellStrategyProvider
+CellStrategyProvider --> ICellLifeStrategy
+
+ICellFactory <|.. SimpleCellFactory
+SimpleCellFactory --> Cell
+
+IWorldFactory <|.. ClassicWorldFactory
+IWorldFactory <|.. ColoniesWorldFactory
+ClassicWorldFactory --> ICellStrategyProvider
+ClassicWorldFactory --> ICellFactory
+ColoniesWorldFactory --> ICellStrategyProvider
+ColoniesWorldFactory --> ICellFactory
+
+Terrain --> Cell
+Terrain --> ICellFactory : uses
+Terrain --> CellContext : BuildContext
+Terrain --> Cell : GetNeighbors
+
+MainWindow --> Terrain
+MainWindow --> IWorldFactory
+MainWindow --> ICellFactory
+
+@enduml
