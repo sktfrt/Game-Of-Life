@@ -7,6 +7,7 @@
 
 ## Структура проекта
 
+```
 GameOfLifeOOP/
 │
 ├─ Program.cs # Точка входа, запускает MainWindow
@@ -39,6 +40,7 @@ GameOfLifeOOP/
 │
 └─ Terrain/
 └─ Terrain.cs
+```
 
 ---
 
