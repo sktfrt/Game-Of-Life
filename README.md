@@ -19,6 +19,17 @@ GameOfLifeOOP/
 │ ├─ Cell.cs
 │ ├─ CellType.cs
 │ └─ CellContext.cs
+├─ Patterns/
+│ ├─ AllPatterns.cs
+│ ├─ PatternBase.cs
+│ ├─ BlockPattern.cs
+│ ├─ BlinkerPattern.cs
+│ ├─ GliderPattern.cs
+│ ├─ PentadecathlonPattern.cs
+│ ├─ BeehivePattern.cs
+│ ├─ PatternTerrainDecorator.cs
+│ ├─ PatternCell.cs
+│ └─ PatternType.cs
 │
 ├─ Strategies/ # Стратегии поведения клеток
 │ ├─ ICellLifeStrategy.cs
