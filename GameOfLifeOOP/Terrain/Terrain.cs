@@ -15,8 +15,8 @@ public class Terrain : ITerrain
     public void Reinitialize(ICellFactory factory)
     {
         for (int x = 0; x < width; x++)
-        for (int y = 0; y < height; y++)
-            cells[x, y] = factory.Create(x, y, CellType.Empty);
+            for (int y = 0; y < height; y++)
+                cells[x, y] = factory.Create(x, y, CellType.Empty);
     }
 
     public void Update()
@@ -47,9 +47,9 @@ public class Terrain : ITerrain
         int endY = Math.Min(height - 1, cell.Y + 1);
 
         for (int x = startX; x <= endX; x++)
-        for (int y = startY; y <= endY; y++)
-            if (x != cell.X || y != cell.Y)
-                yield return cells[x, y];
+            for (int y = startY; y <= endY; y++)
+                if (x != cell.X || y != cell.Y)
+                    yield return cells[x, y];
     }
 
 
