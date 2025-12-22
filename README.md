@@ -11,9 +11,9 @@
 GameOfLifeOOP/
 │
 ├─ Program.cs # Точка входа, запускает MainWindow
-├─ MainWindow.cs # Основное окно WinForms, таймер, Paint, ComboBox
-├─ MainWindow.Designer.cs # Автогенерируемый дизайн формы
-├─ GameOfLifeOOP.csproj # Файл проекта
+├─ MainWindow.cs # Основное окно WinForms
+├─ MainWindow.Designer.cs 
+├─ GameOfLifeOOP.csproj
 │
 ├─ Models/ # Основные сущности проекта
 │ ├─ Cell.cs
@@ -38,24 +38,24 @@ GameOfLifeOOP/
 │ ├─ ClassicWorldFactory.cs
 │ └─ ColoniesWorldFactory.cs
 │
-└─ Terrain/
-└─ Terrain.cs
+├─ Terrain/ # Создание поля клеток
+│ └─ Terrain.cs
 ```
 
 ---
 
 ## Как запустить
 
-1. Клонируй проект или скачай репозиторий.
-2. Открой в VS Code.
-3. Убедись, что установлен .NET 9.0 SDK.
-4. Собери проект:
+1. Клонируйте проект или скачайте репозиторий.
+2. Откройте в VS Code.
+3. Убедитесь, что установлен .NET 9.0 SDK.
+4. Соберите проект:
 
 ```bash
 dotnet build
 ```
 
-5. Запусти проект:
+5. Запустите проект:
 ```bash
 dotnet run
 ```

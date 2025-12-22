@@ -1,6 +1,6 @@
 namespace GameOfLifeOOP;
 
-public class Terrain
+public class Terrain : ITerrain
 {
     private Cell[,] cells;
     private readonly int width, height;
@@ -9,9 +9,7 @@ public class Terrain
     {
         width = w; height = h;
         cells = new Cell[w, h];
-        for (int x = 0; x < w; x++)
-        for (int y = 0; y < h; y++)
-            cells[x, y] = factory.Create(x, y, CellType.Empty);
+        Reinitialize(factory);
     }
 
     public void Reinitialize(ICellFactory factory)

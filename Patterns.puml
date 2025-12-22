@@ -1,0 +1,72 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' ===== ENUMS =====
+enum PatternCell {
+  Empty
+  Alive
+  Any
+}
+
+enum PatternType {
+  Block
+  Blinker
+  Glider
+  Pentadecathlon
+  Hive
+}
+
+' ===== TERRAIN INTERFACE =====
+interface ITerrain {
+  +GetCells() : Cell[,]
+  +Update()
+  +Reinitialize(ICellFactory factory)
+}
+
+' ===== BASE PATTERN =====
+abstract class PatternBase {
+  +Type : PatternType
+  +Mask : PatternCell[,]
+  +IsMatch(ITerrain terrain, Cell cell) : bool
+}
+
+' ===== CONCRETE PATTERNS =====
+class BlockPattern
+class BlinkerPattern
+class GliderPattern
+class PentadecathlonPattern
+class HivePattern
+
+PatternBase <|-- BlockPattern
+PatternBase <|-- BlinkerPattern
+PatternBase <|-- GliderPattern
+PatternBase <|-- PentadecathlonPattern
+PatternBase <|-- HivePattern
+
+' ===== PATTERN STORAGE =====
+class Patterns {
+  +patterns : List<PatternBase>
+  +Counts : Dictionary<PatternType, int>
+}
+
+Patterns o-- PatternBase
+
+' ===== DECORATOR =====
+class PatternTerrainDecorator {
+  -inner : ITerrain
+  -patterns : List<PatternBase>
+  +PatternCells : HashSet<(int,int)>
+  +RecalculatePatterns()
+  +GetCells() : Cell[,]
+  +Update()
+}
+
+PatternTerrainDecorator ..> PatternBase
+PatternTerrainDecorator ..|> ITerrain
+
+' ===== DEPENDENCIES =====
+PatternBase ..> PatternCell
+PatternBase ..> PatternType
+PatternBase ..> Cell
+
+@enduml

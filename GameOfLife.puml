@@ -13,7 +13,7 @@ skinparam rectangle {
   BackgroundColor<<Terrain>> LightPink
 }
 
-title Game of Life OOP - UML Диаграмма (Compact)
+title Game of Life OOP - UML Диаграмма
 
 ' Классы клеток
 class Cell <<Cell>> {
@@ -88,6 +88,16 @@ class Terrain <<Terrain>> {
     -GetNeighbors(Cell cell)
 }
 
+' Decorator
+class PatternTerrainDecorator
+
+' ITerrain
+interface ITerrain {
+  +GetCells() : Cell[,]
+  +Update()
+  +Reinitialize(ICellFactory factory)
+}
+
 ' MainWindow
 class MainWindow {
     -Terrain terrain
@@ -126,6 +136,10 @@ Terrain --> Cell
 Terrain --> ICellFactory : uses
 Terrain --> CellContext : BuildContext
 Terrain --> Cell : GetNeighbors
+
+Terrain ..|> ITerrain
+PatternTerrainDecorator ..|> ITerrain
+PatternTerrainDecorator o-- ITerrain
 
 MainWindow --> Terrain
 MainWindow --> IWorldFactory
