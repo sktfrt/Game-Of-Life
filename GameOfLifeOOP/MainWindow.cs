@@ -7,82 +7,66 @@ namespace GameOfLifeOOP
     public partial class MainWindow : Form
     {
         private ITerrain terrain;
+        private Terrain baseTerrain;
 
-        private PatternTerrainDecorator patternDecorator;
-
-        private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-
-        private int cellSize = 20;
-
-        private bool showOnlyPatterns = false;
-        private CheckBox showPatternsCheckbox;
-        private Panel patternsPanel;
+        private PatternTerrainDecorator patterns;
+        private StatisticsTerrainDecorator stats;
 
         private IWorldFactory currentFactory;
         private ICellFactory cellFactory;
+
+        private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+
+        private const int cellSize = 20;
+
+        private bool drawOnlyPatterns = false;
+
+        private CheckBox drawCellsCheckbox;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            this.Text = "Game of Life";
-            this.ClientSize = new Size(500, 400);
-            this.DoubleBuffered = true;
+            Text = "Game of Life";
+            ClientSize = new Size(750, 420);
+            DoubleBuffered = true;
 
-            ComboBox comboBox = new ComboBox();
-
-            comboBox.Items.AddRange(new string[] { "Classic", "Colonies" });
+            var comboBox = new ComboBox
+            {
+                Dock = DockStyle.Top
+            };
+            comboBox.Items.AddRange(new[] { "Classic", "Colonies" });
             comboBox.SelectedIndex = 0;
+            comboBox.SelectedIndexChanged += (_, __) =>
+                OnModeChanged(comboBox.SelectedItem!.ToString()!);
 
-            comboBox.SelectedIndexChanged += (s, e) => OnModeChanged(comboBox.SelectedItem.ToString());
-            comboBox.Dock = DockStyle.Top;
+            Controls.Add(comboBox);
 
-            this.Controls.Add(comboBox);
+            drawCellsCheckbox = new CheckBox
+            {
+                Text = "Draw patterns only",
+                Dock = DockStyle.Top
+            };
+
+            drawCellsCheckbox.CheckedChanged += (_, __) =>
+            {
+                drawOnlyPatterns = drawCellsCheckbox.Checked;
+                Invalidate();
+            };
+
+            Controls.Add(drawCellsCheckbox);
 
             OnModeChanged("Classic");
 
             timer.Interval = 500;
-            timer.Tick += (s, e) =>
+            timer.Tick += (_, __) =>
             {
                 terrain.Update();
-                this.Invalidate();
-                patternsPanel.Invalidate();
+                Invalidate();
             };
             timer.Start();
 
-            this.Paint += MainWindow_Paint;
-
-            // Паттерны
-            showPatternsCheckbox = new CheckBox();
-            showPatternsCheckbox.Text = "Show only patterns";
-            showPatternsCheckbox.Dock = DockStyle.Top;
-
-            showPatternsCheckbox.CheckedChanged += (s, e) =>
-            {
-                showOnlyPatterns = showPatternsCheckbox.Checked;
-                Invalidate();
-            };
-
-            this.Controls.Add(showPatternsCheckbox);
-
-            // Панель для паттернов
-            patternsPanel = new Panel();
-            patternsPanel.Width = 120;
-            patternsPanel.Dock = DockStyle.Right;
-            patternsPanel.BackColor = Color.LightGray;
-            this.Controls.Add(patternsPanel);
-
-            patternsPanel.Paint += (s, e) =>
-            {
-                int y = 5;
-                foreach (var kvp in Patterns.Counts)
-                {
-                    e.Graphics.DrawString($"{kvp.Key}: {kvp.Value}",
-                                        this.Font, Brushes.Black, 5, y);
-                    y += 20;
-                }
-            };
-
+            Paint += MainWindow_Paint;
         }
 
         private void OnModeChanged(string mode)
@@ -99,76 +83,81 @@ namespace GameOfLifeOOP
 
             if (terrain == null)
             {
-                var baseTerrain = new Terrain(20, 20, cellFactory);
-                patternDecorator = new PatternTerrainDecorator(baseTerrain);
-                terrain = patternDecorator;
+                baseTerrain = new Terrain(20, 20, cellFactory);
+                patterns = new PatternTerrainDecorator(baseTerrain);
+                stats = new StatisticsTerrainDecorator(patterns, patterns);
+
+                terrain = stats;
 
             }
             else
-                terrain.Reinitialize(cellFactory);
+                baseTerrain.Reinitialize(cellFactory);
 
             Randomize(mode);
+
+            patterns.RecalculatePatterns();
         }
 
         private void Randomize(string mode)
         {
             var rnd = new Random();
-            CellType RandomType()
+
+            CellType RandomType() => mode switch
             {
-                return mode switch
+                "Classic" => rnd.Next(2) == 0 ? CellType.Empty : CellType.White,
+                "Colonies" => rnd.Next(3) switch
                 {
-                    "Classic" => rnd.Next(2) == 0 ? CellType.Empty : CellType.White,
-                    "Colonies" => rnd.Next(3) switch
-                    {
-                        0 => CellType.Empty,
-                        1 => CellType.White,
-                        _ => CellType.Black
-                    },
-                    _ => CellType.Empty
-                };
-            }
+                    0 => CellType.Empty,
+                    1 => CellType.White,
+                    _ => CellType.Black
+                },
+                _ => CellType.Empty
+            };
 
-            for (int x = 0; x < terrain.GetCells().GetLength(0); x++)
-                for (int y = 0; y < terrain.GetCells().GetLength(1); y++)
-                    terrain.GetCells()[x, y] = cellFactory.Create(x, y, RandomType());
-        }
-
-        private void MainWindow_Paint(object sender, PaintEventArgs e)
-        {
-            var g = e.Graphics;
             var cells = terrain.GetCells();
 
             for (int x = 0; x < cells.GetLength(0); x++)
                 for (int y = 0; y < cells.GetLength(1); y++)
-                {
-                    bool isPatternCell =
-                    patternDecorator != null &&
-                    patternDecorator.PatternCells.Contains((x, y));
-
-                    Brush brush;
-
-                    if (showOnlyPatterns && !isPatternCell)
-                    {
-                        brush = Brushes.Gray;
-                    }
-                    else
-                    {
-                        brush = cells[x, y].Type switch
-                        {
-                            CellType.White => Brushes.White,
-                            CellType.Black => Brushes.Black,
-                            _ => Brushes.Gray
-                        };
-                    }
-
-                    g.FillRectangle(
-                        brush,
-                        x * cellSize,
-                        y * cellSize,
-                        cellSize - 1,
-                        cellSize - 1
-                );
-                }
+                    cells[x, y] = cellFactory.Create(x, y, RandomType());
         }
+
+        private void MainWindow_Paint(object? sender, PaintEventArgs e)
+        {
+            e.Graphics.Clear(Color.DarkGray);
+
+            if (drawOnlyPatterns) patterns.Draw(e.Graphics, drawOnlyPatterns);
+            else stats.Draw(e.Graphics);
+
+            var s = stats.Stats;
+
+            int offsetX = terrain.GetCells().GetLength(0) * cellSize + 10;
+            int offsetY = 50;
+
+
+            string text =
+            $"White: {s.WhiteCount} ({s.WhiteDelta:+0.##;-0.##;0}%)\n" +
+            $"Black: {s.BlackCount} ({s.BlackDelta:+0.##;-0.##;0}%)\n\n" +
+            $"Update: {s.UpdateTime.TotalMilliseconds:F1} ms\n" +
+            $"Scan:   {s.ScanTime.TotalMilliseconds:F1} ms\n\n";
+
+            if (s.PatternCounts.Count > 0)
+            {
+                text += "Patterns:\n";
+
+                foreach (var (type, count) in s.PatternCounts)
+                {
+                    text += $"  {type}: {count}\n";
+                }
+            }
+
+            e.Graphics.DrawString(
+                text,
+                Font,
+                Brushes.Black,
+                offsetX,
+                offsetY
+            );
+        }
+
     }
 }

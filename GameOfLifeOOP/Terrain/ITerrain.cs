@@ -7,4 +7,6 @@ public interface ITerrain
     public void Update();
 
     public void Reinitialize(ICellFactory factory);
+
+    void Draw(Graphics g);
 }

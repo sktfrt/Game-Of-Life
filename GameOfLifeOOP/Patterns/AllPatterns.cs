@@ -19,6 +19,4 @@ public static class Patterns
         new BeehivePatternHorizontal(),
         new BeehivePatternVertical()
     };
-
-    public static Dictionary<PatternType, int> Counts = new();
 }

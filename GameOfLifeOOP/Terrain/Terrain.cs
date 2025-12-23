@@ -54,4 +54,34 @@ public class Terrain : ITerrain
 
 
     public Cell[,] GetCells() => cells;
+
+    public void Draw(Graphics g)
+    {
+        foreach (var cell in cells)
+        {
+            DrawCell(g, cell);
+        }
+    }
+
+    private const int cellSize = 20;
+
+    private void DrawCell(Graphics g, Cell cell)
+    {
+        Brush brush = cell.Type switch
+        {
+            CellType.White => Brushes.White,
+            CellType.Black => Brushes.Black,
+            _ => Brushes.Gray
+        };
+
+        int px = cell.X * cellSize;
+        int py = cell.Y * cellSize;
+
+        if (cell.Type != CellType.Empty)
+        {
+            g.FillRectangle(brush, px, py, cellSize - 1, cellSize - 1);
+        }
+
+        g.DrawRectangle(Pens.Gray, px, py, cellSize - 1, cellSize - 1);
+    }
 }
