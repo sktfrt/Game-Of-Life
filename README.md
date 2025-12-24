@@ -10,47 +10,68 @@
 ```
 GameOfLifeOOP/
 │
-├─ Program.cs # Точка входа, запускает MainWindow
-├─ MainWindow.cs # Основное окно WinForms
-├─ MainWindow.Designer.cs 
-├─ GameOfLifeOOP.csproj
+├── README.md                                 # Документация проекта
+├── GameOfLifeOOP.csproj                      # Файл проекта
+├── GameOfLifeOOP.csproj.user                 # Пользовательские настройки проекта
+├── GameOfLife.puml                           # UML-диаграммы проекта
 │
-├─ Models/ # Основные сущности проекта
-│ ├─ Cell.cs
-│ ├─ CellType.cs
-│ └─ CellContext.cs
-├─ Patterns/
-│ ├─ AllPatterns.cs
-│ ├─ PatternBase.cs
-│ ├─ BlockPattern.cs
-│ ├─ BlinkerPattern.cs
-│ ├─ GliderPattern.cs
-│ ├─ PentadecathlonPattern.cs
-│ ├─ BeehivePattern.cs
-│ ├─ PatternTerrainDecorator.cs
-│ ├─ PatternCell.cs
-│ └─ PatternType.cs
+├── Program.cs                                # Точка входа приложения
 │
-├─ Strategies/ # Стратегии поведения клеток
-│ ├─ ICellLifeStrategy.cs
-│ ├─ ClassicEmptyStrategy.cs
-│ ├─ ClassicWhiteStrategy.cs
-│ ├─ ColonyWhiteStrategy.cs
-│ └─ ColonyBlackStrategy.cs
+├── MainWindow.cs                             # Основное окно приложения
+├── MainWindow.Designer.cs                    # Дизайнер основного окна
 │
-├─ Providers/ # Поставщик стратегий
-│ ├─ ICellStrategyProvider.cs
-│ └─ CellStrategyProvider.cs
+├── Models/                                   # Базовые модели и сущности
+│   ├── Cell.cs                              # Класс клетки
+│   ├── CellContext.cs                       # Контекст клетки (окружение)
+│   └── CellType.cs                          # Перечисление типов клеток
 │
-├─ Factories/ # Фабрики клеток и миров
-│ ├─ ICellFactory.cs
-│ ├─ SimpleCellFactory.cs
-│ ├─ IWorldFactory.cs
-│ ├─ ClassicWorldFactory.cs
-│ └─ ColoniesWorldFactory.cs
+├── Strategies/                               # Паттерн "Стратегия" - поведение клеток
+│   ├── ICellLifeStrategy.cs                 # Интерфейс стратегии поведения клетки
+│   │
+│   ├── Classic/                             # Стратегии для классического режима
+│   │   ├── ClassicEmptyStrategy.cs
+│   │   └── ClassicWhiteStrategy.cs
+│   │
+│   └── Colonies/                            # Стратегии для режима "Колонии"
+│       ├── ColonyManager.cs
+│       ├── ColonyWhiteStrategy.cs
+│       └── ColonyBlackStrategy.cs
+│   
 │
-├─ Terrain/ # Создание поля клеток
-│ └─ Terrain.cs
+├── Providers/                               # Поставщики стратегий
+│   ├── ICellStrategyProvider.cs            # Интерфейс поставщика стратегий
+│   └── CellStrategyProvider.cs             # Реализация поставщика стратегий
+│
+├── Factories/                               # Паттерн "Фабрика" - создание миров
+│   ├── IWorldFactory.cs                    # Интерфейс фабрики мира
+│   ├── ICellFactory.cs                     # Интерфейс фабрики клеток
+│   ├── SimpleCellFactory.cs                # Простая фабрика клеток
+│   ├── ClassicWorldFactory.cs              # Фабрика классического мира
+│   └── ColoniesWorldFactory.cs             # Фабрика мира с колониями
+│
+├── Patterns/                                # Предопределенные паттерны для инициализации
+│   ├── PatternBase.cs                      # Базовый класс паттерна
+│   ├── PatternCell.cs                      # Клетка в паттерне
+│   ├── PatternType.cs                      # Тип паттерна
+│   ├── AllPatterns.cs                      # Коллекция всех доступных паттернов
+│   │
+│   └── PatternImplementations/             # Конкретные реализации паттернов
+│       ├── BlockPattern.cs
+│       ├── BlinkerPattern.cs
+│       ├── BeehivePattern.cs
+│       ├── GliderPattern.cs
+│       └── PentadecathlonPattern.cs
+│
+├── Decorators/                              # Паттерн "Декоратор" - расширение функциональности
+│   ├── StatisticsDecorator/                # Декоратор для сбора статистики
+│   │   ├── StatisticsTerrainDecorator.cs   # Декоратор поля со статистикой
+│   │   ├── FieldStatistics.cs              # Статистика игрового поля
+│   │   └── StatsSnapshot.cs                # Снимок статистики
+│   │
+│   └── PatternTerrainDecorator.cs          # Декоратор для применения паттернов
+│                
+└── bin/                                     # Скомпилированные файлы (автогенерируемые)
+└── obj/                                     # Временные файлы компиляции (автогенерируемые)
 ```
 
 ---
