@@ -14,4 +14,11 @@ public class ColoniesWorldFactory : IWorldFactory
     }
 
     public ICellFactory CreateCellFactory(ICellStrategyProvider strategies) => new SimpleCellFactory(strategies);
+
+    public ColonyManager ColonyManager { get; private set; }
+
+    public void InitializeColonyManager(Terrain terrain, PatternTerrainDecorator patterns)
+    {
+        ColonyManager = new ColonyManager(terrain);
+    }
 }

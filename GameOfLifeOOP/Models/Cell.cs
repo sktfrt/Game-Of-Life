@@ -2,9 +2,9 @@ namespace GameOfLifeOOP;
 
 public class Cell
 {
-    public int X { get; }
-    public int Y { get; }
-    public CellType Type { get; private set; }
+    public int X { get; set; }
+    public int Y { get; set; }
+    public CellType Type { get; set; }
     private readonly ICellStrategyProvider provider;
 
     public Cell(int x, int y, CellType type, ICellStrategyProvider provider)

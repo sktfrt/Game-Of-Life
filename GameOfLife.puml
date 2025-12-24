@@ -76,7 +76,10 @@ interface IWorldFactory <<WorldFactory>> {
 }
 
 class ClassicWorldFactory <<WorldFactory>>
-class ColoniesWorldFactory <<WorldFactory>>
+class ColoniesWorldFactory <<WorldFactory>>{
+    +InitializeColonyManager(Terrain terrain, PatternTerrainDecorator patterns)
+    +ColonyManager ColonyManager
+}
 
 ' Terrain
 class Terrain <<Terrain>> {
@@ -88,28 +91,121 @@ class Terrain <<Terrain>> {
     -GetNeighbors(Cell cell)
 }
 
-' Decorator
-class PatternTerrainDecorator
-
 ' ITerrain
 interface ITerrain {
   +GetCells() : Cell[,]
   +Update()
+  +Draw(Graphics g)
+  +DrawCell(Graphics g, Cell cell)
   +Reinitialize(ICellFactory factory)
 }
 
 ' MainWindow
 class MainWindow {
-    -Terrain terrain
+    -ITerrain terrain
+    -Terrain baseTerrain
     -Timer timer
     -IWorldFactory currentFactory
     -ICellFactory cellFactory
+    -PatternTerrainDecorator patterns
+    -StatisticsTerrainDecorator stats
+    -ColonyManager colonyManager
     +MainWindow()
     +OnModeChanged(string mode)
     +MainWindow_Paint()
 }
 
+' Паттерны
+
+enum PatternCell {
+  Empty
+  Alive
+  Any
+}
+
+enum PatternType {
+  Block
+  Blinker
+  Glider
+  Pentadecathlon
+  Hive
+}
+
+abstract class PatternBase {
+  +Type : PatternType
+  +Mask : PatternCell[,]
+  +IsMatch(ITerrain terrain, Cell cell) : bool
+}
+
+class BlockPattern
+class BlinkerPattern
+class GliderPattern
+class PentadecathlonPattern
+class HivePattern
+
+
+class Patterns {
+  +patterns : List<PatternBase>
+}
+
+Patterns o-- PatternBase
+
+class PatternTerrainDecorator {
+  -inner : ITerrain
+  -patterns : List<PatternBase>
+  +PatternCells : HashSet<(int,int)>
+  +PatternCounts : Dictionary<PatternType, int>
+  +RecalculatePatterns()
+  +DrawCell(Graphics g, Cell cell, bool isPattern)
+}
+
+' Статистика
+
+class StatisticsTerrainDecorator {
+    -ITerrain _inner
+    -PatternTerrainDecorator patternStats
+}
+
+class FieldStatistics{
+    +WhiteCount 
+    +BlackCount
+    +WhiteDelta
+    +BlackDelta 
+    +TimeSpan UpdateTime 
+    +TimeSpan ScanTime 
+    +PatternCounts : ReadOnlyDictionary<PatternType, int>
+    +UpdateFieldStatistics(StatsSnapshot before, StatsSnapshot after, TimeSpan update, TimeSpan scan, IReadOnlyDictionary<PatternType, int>? patterns)
+    -Percent(int before, int after)
+}
+
+class StatsSnapshot{
+    +Take(ITerrain terrain)
+}
+
+PatternTerrainDecorator ..> PatternBase
+PatternTerrainDecorator ..|> ITerrain
+PatternTerrainDecorator ..> ITerrain
+
+PatternBase <|.. BlockPattern
+PatternBase <|.. BlinkerPattern
+PatternBase <|.. GliderPattern
+PatternBase <|.. PentadecathlonPattern
+PatternBase <|.. HivePattern
+
+FieldStatistics ..> PatternType
+FieldStatistics ..> StatsSnapshot
+
+StatisticsTerrainDecorator ..> ITerrain
+StatisticsTerrainDecorator ..> PatternTerrainDecorator
+
+StatsSnapshot ..> ITerrain
+
 ' Связи
+PatternBase ..> PatternCell
+PatternBase ..> PatternType
+PatternBase ..> Cell
+
+
 Cell --> ICellStrategyProvider : uses
 Cell --> CellContext : uses
 CellContext --> CellType
@@ -127,10 +223,13 @@ SimpleCellFactory --> Cell
 
 IWorldFactory <|.. ClassicWorldFactory
 IWorldFactory <|.. ColoniesWorldFactory
+
 ClassicWorldFactory --> ICellStrategyProvider
 ClassicWorldFactory --> ICellFactory
+
 ColoniesWorldFactory --> ICellStrategyProvider
 ColoniesWorldFactory --> ICellFactory
+ColoniesWorldFactory --> ColonyManager
 
 Terrain --> Cell
 Terrain --> ICellFactory : uses
@@ -138,10 +237,9 @@ Terrain --> CellContext : BuildContext
 Terrain --> Cell : GetNeighbors
 
 Terrain ..|> ITerrain
-PatternTerrainDecorator ..|> ITerrain
-PatternTerrainDecorator o-- ITerrain
 
 MainWindow --> Terrain
+MainWindow --> ITerrain
 MainWindow --> IWorldFactory
 MainWindow --> ICellFactory
 

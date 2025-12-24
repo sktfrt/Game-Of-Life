@@ -20,15 +20,16 @@ namespace GameOfLifeOOP
         private const int cellSize = 20;
 
         private bool drawOnlyPatterns = false;
-
         private CheckBox drawCellsCheckbox;
+
+        private ColonyManager? colonyManager;
 
         public MainWindow()
         {
             InitializeComponent();
 
             Text = "Game of Life";
-            ClientSize = new Size(750, 420);
+            ClientSize = new Size(650, 400);
             DoubleBuffered = true;
 
             var comboBox = new ComboBox
@@ -62,6 +63,8 @@ namespace GameOfLifeOOP
             timer.Tick += (_, __) =>
             {
                 terrain.Update();
+                colonyManager?.UpdateColonies();
+                patterns.RecalculatePatterns();
                 Invalidate();
             };
             timer.Start();
@@ -77,6 +80,11 @@ namespace GameOfLifeOOP
                 "Colonies" => new ColoniesWorldFactory(),
                 _ => throw new NotImplementedException()
             };
+
+            if (mode=="Colonies")
+                colonyManager = new ColonyManager(baseTerrain);
+            else
+                colonyManager = null;
 
             var strategies = currentFactory.CreateStrategies();
             cellFactory = currentFactory.CreateCellFactory(strategies);
